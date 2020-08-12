@@ -4,15 +4,11 @@ import com.github.mcoder.service.EmployeeService;
 import com.github.mcoder.service.StudentService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.logging.Logger;
 
 @Slf4j
 @Component
@@ -35,6 +31,9 @@ public class ServerVerticle extends AbstractVerticle {
 
         router.get("/api/student/:id")
                 .handler(studentService::getStudentById);
+
+        router.get("/api/people")
+                .handler(this::getAllPeopleHandler);
 
 
         vertx.createHttpServer()
@@ -60,25 +59,23 @@ public class ServerVerticle extends AbstractVerticle {
     }
 
 
-   /* private  void getEmployeeById(RoutingContext routingContext) {
-        String employeeId = routingContext.request().getParam("id");
-        Employee employee = new Employee(employeeId, "Lalu");
-        routingContext
-                .response()
-                .putHeader("content-type", "application/json")
-                .setStatusCode(200)
-                .end(Json.encodePrettily(employee));
-    }*/
+    private void getAllPeopleHandler(RoutingContext routingContext) {
+        vertx.eventBus()
+                .<String>request("GET_ALL_PEOPLE", "random msg", result -> {
+                    if (result.succeeded()) {
+                        routingContext
+                                .response()
+                                .putHeader("content-type", "application/json")
+                                .setStatusCode(200)
+                                .end(result.result().body());
+                    }
+                    else {
+                        routingContext.response()
+                                .setStatusCode(500)
+                                .end();
+                    }
+                });
+    }
 
-   /* @Getter
-    static class Employee {
-        private String id;
-        private String name;
 
-        public Employee(String id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-    }*/
 }

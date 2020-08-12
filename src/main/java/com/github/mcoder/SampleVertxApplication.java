@@ -1,6 +1,7 @@
 package com.github.mcoder;
 
 
+import com.github.mcoder.service.PeopleConsumerService;
 import com.github.mcoder.verticles.ServerVerticle;
 import io.vertx.core.Vertx;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class SampleVertxApplication {
     @Autowired
     private ServerVerticle serverVerticle;
 
+    @Autowired
+    private PeopleConsumerService peopleConsumerService;
+
     public static void main(String[] args) {
         SpringApplication.run(SampleVertxApplication.class, args);
     }
@@ -23,6 +27,7 @@ public class SampleVertxApplication {
     public void deployVerticle() {
         Vertx vertx = Vertx.factory.vertx();
         vertx.deployVerticle(serverVerticle);
+        vertx.deployVerticle(peopleConsumerService);
 
     }
 
